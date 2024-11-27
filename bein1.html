@@ -192,37 +192,21 @@
             }
         });
 
-        // تدوير الشاشة تلقائيًا عند التكبير
-        video.addEventListener('enterfullscreen', () => {
-            if (screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock('landscape').catch(err => console.warn(err));
+        // إيقاف مشغل التضمين عندما يتم الانتقال إلى سيرفر m3u8
+        function stopIframe() {
+            if (iframe) {
+                iframe.src = '';  // مسح رابط المصدر
+                iframe.style.display = 'none'; // إخفاء iframe
             }
-        });
-
-        video.addEventListener('exitfullscreen', () => {
-            if (screen.orientation && screen.orientation.unlock) {
-                screen.orientation.unlock();
-            }
-        });
-
-        // دعم المتصفحات القديمة للشاشة الكاملة
-        video.addEventListener('webkitenterfullscreen', () => {
-            if (screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock('landscape').catch(err => console.warn(err));
-            }
-        });
-
-        video.addEventListener('webkitexitfullscreen', () => {
-            if (screen.orientation && screen.orientation.unlock) {
-                screen.orientation.unlock();
-            }
-        });
+        }
 
         // تبديل بين السيرفرات وإيقاف المشغل السابق
         function switchServer(playerId, button) {
+            // إعادة ضبط الأزرار
             document.querySelectorAll('.toggle-button').forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
+            button.classList.add('active'); // تحديد الزر النشط
 
+            // إيقاف المشغل القديم
             const currentPlayer = document.querySelector('video, iframe');
             if (currentPlayer) {
                 currentPlayer.pause();
@@ -233,6 +217,8 @@
             document.getElementById('iframePlayer').style.display = 'none';
             overlay.style.display = playerId === 'm3u8Player' ? 'flex' : 'none';
             framesCount = 0;
+
+            if (playerId === 'm3u8Player') stopIframe();
 
             const player = document.getElementById(playerId);
             player.style.display = 'block';
